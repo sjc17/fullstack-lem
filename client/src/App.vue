@@ -1,7 +1,7 @@
 <template>
   <nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <router-link to="/" class="navbar-brand">Quick-LEM</router-link> |
+      <router-link to="/" class="navbar-brand">Quick-LEM</router-link>
     </div>
   </nav>
   <div id="main" class="d-flex flex-row h-100">

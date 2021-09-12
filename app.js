@@ -1,13 +1,14 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const db = require('./database/db');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const usersRouter = require('./routes/users');
+const apiRouter = require('./routes/api');
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -25,6 +26,7 @@ console.log(`serveFolder: ${serveFolder}`);
 app.use(express.static(path.join(__dirname, serveFolder)));
 
 app.use('/users', usersRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -40,7 +42,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   console.log(req.baseUrl);
   console.log(req.originalUrl);
-  res.send('error');
+  res.send(`Error status: ${err.status}.`);
 });
 
 module.exports = app;
