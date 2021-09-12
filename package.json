@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"node ./bin/www &&\" \"cd client && npm run build\"",
-    "dev": "concurrently \"nodemon ./bin/www &&\" \"cd client && npm run serve\"",
+    "start": "concurrently \"production node ./bin/www\" \"cd client && npm run build\"",
+    "prod": "concurrently \"set NODE_ENV=production&&node ./bin/www\" \"cd client && npm run build\"",
+    "dev": "concurrently \"set NODE_ENV=development&&nodemon ./bin/www\" \"cd client && npm run serve\"",
     "server": "nodemon ./bin/www",
     "client": "cd client && npm run serve"
   },
