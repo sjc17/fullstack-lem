@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"node ./bin/www\" \"cd client && npm run build\"",
+    "start": "concurrently \"node ./bin/www\" \"cd client && npm install && npm run build\"",
     "prod": "concurrently \"set NODE_ENV=production&&node ./bin/www\" \"cd client && npm run build\"",
     "dev": "concurrently \"set NODE_ENV=development&&nodemon ./bin/www\" \"cd client && npm run serve\"",
     "server": "nodemon ./bin/www",
