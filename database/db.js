@@ -1,7 +1,12 @@
-const { Pool, Client } = require('pg')
+const { Pool, Client } = require('pg');
 // pools will use environment variables
 // for connection information
-const pool = new Pool()
+const pool =
+  process.env.NODE_ENV == 'production'
+    ? new Pool({
+        connectionString: process.env.DATABASE_URL,
+      })
+    : new Pool();
 
 async function resetDb() {
   // Reset DB if things get messy
@@ -71,9 +76,9 @@ async function resetDb() {
     ('GEN_FRM2','H',90.00,'General Foreman OT'),
     ('GEN_MAT', 'EA',1.00,'General Material');
 `);
-    return queryRes;
+  return queryRes;
 }
 
 resetDb();
 
-module.exports = {resetDb, pool};
+module.exports = { resetDb, pool };
