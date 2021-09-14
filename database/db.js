@@ -10,7 +10,7 @@ const pool =
         database: process.env.PGDATABASE,
         port: process.env.PGPORT,
         ssl: {
-          rejectUnauthorized: true,
+          rejectUnauthorized: false,
           ca: process.env.CACERT,
         },
       })
