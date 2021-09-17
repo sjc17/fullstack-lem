@@ -13,25 +13,33 @@ const {
 
 // pools will use environment variables
 // for connection information
+const connObj = {
+  host: HOST,
+  port: PORT,
+  user: USER,
+  password: PASSWORD,
+  database: DATABASE,
+};
 
-async function resetDb() {
-  const connObj = {
-    host: HOST,
-    port: PORT,
-    user: USER,
-    password: PASSWORD,
-    database: DATABASE,
+if (NODE_ENV == 'production') {
+  connObj.ssl = {
+    ca: CA_CERT,
+    rejectUnauthorized: true,
   };
+}
 
-  if (NODE_ENV == 'production') {
-    connObj.ssl = {
-      ca: CA_CERT,
-      rejectUnauthorized: true,
-    };
-  }
+const pool = new Pool(connObj);
 
-  console.log(connObj);
-  const pool = await new Pool(connObj);
+// the pool will emit an error on behalf of any idle clients
+// it contains if a backend error or network partition happens
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+// Reset db table data
+async function resetDb() {
+
   // Reset DB if things get messy
   const queryRes = await pool.query(`
   DROP TABLE IF EXISTS Companies CASCADE;
@@ -100,8 +108,10 @@ async function resetDb() {
     ('GEN_MAT', 'EA',1.00,'General Material');
 `);
   console.log(queryRes);
-  pool.end();
+
   return queryRes;
 }
 
 resetDb();
+
+module.exports = pool;

@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {resetDb, pool} = require('../database/db');
+const pool = require('../database/db');
 
 router.get('/companies', async function (req, res, next) {
   const queryRes = await pool.query('SELECT * FROM Companies');
