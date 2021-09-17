@@ -1,9 +1,12 @@
+require('dotenv').config();
+
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const db = require('./database/db');
+const { NODE_ENV } = require('./config');
 
 const usersRouter = require('./routes/users');
 const apiRouter = require('./routes/api');
@@ -16,12 +19,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 let serveFolder;
-if (process.env.NODE_ENV === 'production') {
+if (NODE_ENV === 'production') {
   serveFolder = 'client/dist';
 } else {
   serveFolder = 'client/public';
 }
-console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`NODE_ENV: ${NODE_ENV}`);
 console.log(`serveFolder: ${serveFolder}`);
 app.use(express.static(path.join(__dirname, serveFolder)));
 

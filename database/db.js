@@ -1,15 +1,37 @@
+require('dotenv').config();
+
 const { Pool, Client } = require('pg');
+const {
+  NODE_ENV,
+  HOST,
+  PORT,
+  USER,
+  PASSWORD,
+  DATABASE,
+  CA_CERT,
+} = require('../config');
+
 // pools will use environment variables
 // for connection information
-const pool =
-  process.env.NODE_ENV == 'production'
-    ? new Pool({
-        connectionString: process.env.DATABASE_URL,
-        ca: process.env.CA_CERT
-      })
-    : new Pool();
 
 async function resetDb() {
+  const connObj = {
+    host: HOST,
+    port: PORT,
+    user: USER,
+    password: PASSWORD,
+    database: DATABASE,
+  };
+
+  if (NODE_ENV == 'production') {
+    connObj.ssl = {
+      ca: CA_CERT,
+      rejectUnauthorized: true,
+    };
+  }
+
+  console.log(connObj);
+  const pool = await new Pool(connObj);
   // Reset DB if things get messy
   const queryRes = await pool.query(`
   DROP TABLE IF EXISTS Companies CASCADE;
@@ -77,9 +99,9 @@ async function resetDb() {
     ('GEN_FRM2','H',90.00,'General Foreman OT'),
     ('GEN_MAT', 'EA',1.00,'General Material');
 `);
+  console.log(queryRes);
+  pool.end();
   return queryRes;
 }
 
 resetDb();
-
-module.exports = { resetDb, pool };
