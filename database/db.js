@@ -107,8 +107,9 @@ async function resetDb() {
     ('GEN_FRM2','H',90.00,'General Foreman OT'),
     ('GEN_MAT', 'EA',1.00,'General Material');
 `);
-  console.log(queryRes);
-
+  if (queryRes) {
+    console.log('DB reset.');
+  }
   return queryRes;
 }
 
