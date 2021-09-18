@@ -32,9 +32,9 @@ app.use('/users', usersRouter);
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+// app.use(function (req, res, next) {
+//   next(createError(404));
+// });
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -42,10 +42,10 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  res.status(err.status || 500);
+  console.log(err.status || 500)
+  res.sendStatus(err.status || 500);
   console.log(req.baseUrl);
   console.log(req.originalUrl);
-  res.send(`Error status: ${err.status}.`);
 });
 
 module.exports = app;
