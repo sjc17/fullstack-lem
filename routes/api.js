@@ -5,6 +5,8 @@ const createError = require('http-errors');
 
 async function makeQuery(text, params, res, next) {
   try {
+    console.log(`Query Text: ${text}`);
+    console.log(`Params: ${params}`);
     const queryRes = await pool.query(text, params);
     res.send(queryRes.rows);
   } catch (err) {
@@ -22,11 +24,12 @@ router.get('/companies', async function (req, res, next) {
 
 // GET Purchase order details
 router.get('/purchaseorders', async function (req, res, next) {
-    const { companyId } = req.body;
-    const text =
-      'SELECT C.Name As "Company Name", PO.Name As "PO Name", PO.Number As "PO Number", PO.Value As "Value" \
-   FROM PurchaseOrders As PO INNER JOIN Companies As C ON PO.CompanyId=C.id WHERE PO.CompanyId=COALESCE($1, PO.CompanyId)';
-    makeQuery(text, [companyId], res, next);
+  const { companyId } = req.body;
+  const text =
+    'SELECT C.Name As "Company Name", PO.Name As "PO Name", PO.Number As "PO Number", PO.Value As "Value" \
+   FROM PurchaseOrders As PO INNER JOIN Companies As C ON PO.CompanyId=C.id \
+   WHERE PO.CompanyId=COALESCE($1, PO.CompanyId)';
+  makeQuery(text, [companyId], res, next);
 });
 
 router.get('/lemitems', async function (req, res, next) {
