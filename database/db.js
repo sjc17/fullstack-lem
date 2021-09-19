@@ -39,7 +39,6 @@ pool.on('error', (err, client) => {
 
 // Reset db table data
 async function resetDb() {
-
   // Reset DB if things get messy
   const queryRes = await pool.query(`
   DROP TABLE IF EXISTS Companies CASCADE;
@@ -54,7 +53,8 @@ async function resetDb() {
     Name varchar(50),
     Value money,	
     CompanyId integer REFERENCES Companies,
-    UNIQUE (Number, CompanyId)
+    UNIQUE (Number, CompanyId),
+    UNIQUE (Name, CompanyId)
   );
   DROP TABLE IF EXISTS LEMs CASCADE;
   CREATE TABLE IF NOT EXISTS LEMs (

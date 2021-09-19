@@ -23,7 +23,7 @@ app.use(cookieParser());
 // Limit 100 requests per 15 minutes
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 1000
 }));
 
 let serveFolder;

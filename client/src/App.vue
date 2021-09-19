@@ -10,6 +10,7 @@
       class="nav nav-pills bg-light d-flex flex-column justify-content-center align-items-center"
     >
       <li class="nav-item">
+        <router-link to="/purchaseorders" class="nav-link">Purchase Orders</router-link>
         <router-link to="/timesheet" class="nav-link">Timesheet</router-link>
       </li>
     </ul>
@@ -18,9 +19,6 @@
 </template>
 
 <style>
-ul {
-  list-style: none;
-}
 
 #sidebar {
   width: 200px;
