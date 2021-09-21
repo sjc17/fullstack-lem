@@ -27,7 +27,12 @@
         class="form-control col-sm-8"
         v-model="newCompanyName"
       />
-      <button type="button" id="btnAddCompany" class="btn btn-primary col-sm-2" @click="addCompany">
+      <button
+        type="button"
+        id="btnAddCompany"
+        class="btn btn-primary col-sm-2"
+        @click="addCompany"
+      >
         Add
       </button>
     </div>
@@ -44,18 +49,6 @@
         </div>
       </div>
       <div class="row">
-        <label for="addPOName" class="col-sm-2 col-form-label text-nowrap"
-          >PO Name:</label
-        >
-        <input
-          type="text"
-          name="AddPOName"
-          id="addPOName"
-          class="form-control addPOinput"
-          v-model="addPOName"
-        />
-      </div>
-      <div class="row">
         <label for="addPONumber" class="col-sm-2 col-form-label text-nowrap"
           >PO Number:</label
         >
@@ -65,6 +58,18 @@
           id="addPONumber"
           class="form-control addPOinput"
           v-model="addPONumber"
+        />
+      </div>
+      <div class="row">
+        <label for="addPOName" class="col-sm-2 col-form-label text-nowrap"
+          >PO Name:</label
+        >
+        <input
+          type="text"
+          name="AddPOName"
+          id="addPOName"
+          class="form-control addPOinput"
+          v-model="addPOName"
         />
       </div>
       <div class="row">
@@ -84,19 +89,44 @@
           Create New Purchase Order
         </button>
       </div>
+      <div class="row">
+        <Alert
+          v-for="alert in alerts"
+          :key="alert.id"
+          :message="alert.message"
+          :isSuccess="alert.isSuccess"
+          :isDanger="alert.isDanger"
+          :close="alert.close"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import Alert from '../components/Alert.vue';
 
 export default {
   name: 'PurchaseOrders',
+  components: {
+    Alert,
+  },
   data() {
     return {
       companies: [],
       purchaseOrders: [],
+      alerts: [
+        // {
+        //   id: 1,
+        //   message: 'Message',
+        //   isSuccess: true,
+        //   isDanger: false,
+        //   close: () => {
+        //     this.closeCallback(1);
+        //   },
+        // },
+      ], // { id: Number, message: String, isSuccess: Boolean, isDanger: Boolean }
       selected: '',
       addPOName: '',
       addPONumber: '',
@@ -105,6 +135,7 @@ export default {
     };
   },
   methods: {
+    // Get companies data from API
     async refreshCompanies() {
       try {
         const response = await axios.get('/api/companies', {});
@@ -113,6 +144,7 @@ export default {
         console.log(err);
       }
     },
+    // Get Purchase Orders data from API
     async refreshPOs() {
       try {
         const response = await axios.get('/api/purchaseorders', {
@@ -125,19 +157,30 @@ export default {
         console.log(err);
       }
     },
+    // Create new company
     async addCompany() {
       try {
+        // Validation
+        if (!this.newCompanyName) return;
         await axios.post('/api/companies', {
           companyName: this.newCompanyName,
         });
-        const response = await axios.get('/api/companies');
-        console.log(response.data)
-        this.companies = response.data;
+        this.refreshCompanies();
       } catch (err) {
         console.log(err);
       }
     },
+    // Create new purchase order
     async addPO() {
+      // Validation
+      if (
+        !this.selected ||
+        !this.addPONumber ||
+        !this.addPOName ||
+        !this.addPOValue
+      ) {
+        return;
+      }
       const parameters = {
         number: this.addPONumber,
         name: this.addPOName,
@@ -157,6 +200,14 @@ export default {
       } catch (err) {
         console.log(err);
       }
+    },
+    // Callback function for alert close button
+    // Removes that specific alert object from alerts array
+    closeCallback(id) {
+      this.alerts.splice(
+        this.alerts.findIndex((alert) => alert.id === id),
+        1
+      );
     },
   },
   async created() {
