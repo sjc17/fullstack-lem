@@ -37,6 +37,17 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
+// Make a query
+async function makeQuery(text, params, res, next) {
+  try {
+    const queryRes = await pool.query(text, params);
+    res.send(queryRes.rows);
+  } catch (err) {
+    console.log(err);
+    next(createError(500));
+  }
+}
+
 // Reset db table data
 async function resetDb() {
   // Reset DB if things get messy
@@ -115,4 +126,4 @@ async function resetDb() {
 
 resetDb();
 
-module.exports = pool;
+module.exports = {pool, makeQuery, resetDb};

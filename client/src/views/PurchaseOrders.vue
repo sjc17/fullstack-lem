@@ -116,6 +116,7 @@ export default {
     return {
       companies: [],
       purchaseOrders: [],
+      // Array of objects to render alert labels
       alerts: [
         // {
         //   id: 1,
