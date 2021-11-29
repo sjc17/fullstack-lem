@@ -19,7 +19,6 @@
 </template>
 
 <style>
-
 #sidebar {
   width: 200px;
 }

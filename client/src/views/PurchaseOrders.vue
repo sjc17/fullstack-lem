@@ -104,8 +104,9 @@
 </template>
 
 <script>
-import axios from 'axios';
 import Alert from '../components/Alert.vue';
+import defaultMethods from '../methods/dbMethods'
+const {getCompanies, getPurchaseOrders, addCompany, addPurchaseOrder} = defaultMethods;
 
 export default {
   name: 'PurchaseOrders',
@@ -128,7 +129,7 @@ export default {
         //   },
         // },
       ], // { id: Number, message: String, isSuccess: Boolean, isDanger: Boolean }
-      selected: '',
+      selected: {},
       addPOName: '',
       addPONumber: '',
       addPOValue: '',
@@ -138,38 +139,16 @@ export default {
   methods: {
     // Get companies data from API
     async refreshCompanies() {
-      try {
-        const response = await axios.get('/api/companies', {});
-        this.companies = response.data;
-      } catch (err) {
-        console.log(err);
-      }
+      this.companies = await getCompanies();
     },
     // Get Purchase Orders data from API
     async refreshPOs() {
-      try {
-        const response = await axios.get('/api/purchaseorders', {
-          params: {
-            companyId: this.selected.id,
-          },
-        });
-        this.purchaseOrders = response.data;
-      } catch (err) {
-        console.log(err);
-      }
+      this.purchaseOrders = await getPurchaseOrders();
     },
     // Create new company
     async addCompany() {
-      try {
-        // Validation
-        if (!this.newCompanyName) return;
-        await axios.post('/api/companies', {
-          companyName: this.newCompanyName,
-        });
-        this.refreshCompanies();
-      } catch (err) {
-        console.log(err);
-      }
+      await addCompany(this.newCompanyName);
+      await this.refreshCompanies();
     },
     // Create new purchase order
     async addPO() {
@@ -189,18 +168,7 @@ export default {
         companyId: this.selected.id,
       };
       console.log(parameters);
-      try {
-        const response = await axios.post('/api/purchaseorders', {
-          number: this.addPONumber,
-          name: this.addPOName,
-          value: this.addPOValue,
-          companyId: this.selected.id,
-        });
-        console.log(response);
-        this.refreshPOs();
-      } catch (err) {
-        console.log(err);
-      }
+      await addPurchaseOrder(parameters);
     },
     // Callback function for alert close button
     // Removes that specific alert object from alerts array
