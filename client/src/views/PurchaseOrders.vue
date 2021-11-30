@@ -6,7 +6,7 @@
       id="selectCompanies"
       @change="refreshPOs"
       class="form-control form-select mb-3"
-      v-model="selected"
+      v-model="selectedCompany"
     >
       <option
         v-for="company in companies"
@@ -36,7 +36,7 @@
         Add
       </button>
     </div>
-    <div>Purchase Orders for: {{ selected.name }}</div>
+    <div>Purchase Orders for: {{ selectedCompany.name }}</div>
     <ul class="mb-3">
       <li v-for="po in purchaseOrders" :key="po.id">
         {{ po['PO Number'] }}: {{ po['PO Name'] }} - {{ po['Value'] }}
@@ -129,7 +129,7 @@ export default {
         //   },
         // },
       ], // { id: Number, message: String, isSuccess: Boolean, isDanger: Boolean }
-      selected: {},
+      selectedCompany: {},
       addPOName: '',
       addPONumber: '',
       addPOValue: '',
@@ -143,7 +143,7 @@ export default {
     },
     // Get Purchase Orders data from API
     async refreshPOs() {
-      this.purchaseOrders = await getPurchaseOrders();
+      this.purchaseOrders = await getPurchaseOrders(this.selectedCompany.id);
     },
     // Create new company
     async addCompany() {
@@ -154,7 +154,7 @@ export default {
     async addPO() {
       // Validation
       if (
-        !this.selected ||
+        !this.selectedCompany ||
         !this.addPONumber ||
         !this.addPOName ||
         !this.addPOValue
@@ -165,7 +165,7 @@ export default {
         number: this.addPONumber,
         name: this.addPOName,
         value: this.addPOValue,
-        companyId: this.selected.id,
+        companyId: this.selectedCompany.id,
       };
       console.log(parameters);
       await addPurchaseOrder(parameters);

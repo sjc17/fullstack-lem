@@ -10,11 +10,11 @@ async function getCompanies() {
   }
 }
 
-async function getPurchaseOrders() {
+async function getPurchaseOrders(companyId = null) {
   try {
     const response = await axios.get('/api/purchaseorders', {
       params: {
-        companyId: this.selected.id,
+        companyId
       },
     });
     return response.data;
