@@ -88,8 +88,7 @@ async function resetDb() {
     LEMid integer REFERENCES LEMs,
     ItemCode varchar(50) REFERENCES LEMItems,
     WorkOrder varchar(50),
-    Quantity integer,
-    Comment varchar(50)
+    Quantity integer
   );
   INSERT INTO Companies (Name) VALUES 
     ('ABC Energy'),
