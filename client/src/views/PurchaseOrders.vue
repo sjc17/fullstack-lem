@@ -1,5 +1,6 @@
 <template>
   <div class="purchaseorders container">
+    <h1>Purchase Orders</h1>
     <label for="selectCompanies" class="mt-3">Client Company:</label>
     <select
       name="companies"
@@ -36,7 +37,7 @@
         Add
       </button>
     </div>
-    <div>Purchase Orders for: {{ selectedCompany.name }}</div>
+    <div>Purchase Orders for {{ selectedCompany.name }}:</div>
     <ul class="mb-3">
       <li v-for="po in purchaseOrders" :key="po.id">
         {{ po['PO Number'] }}: {{ po['PO Name'] }} - {{ po['Value'] }}
@@ -169,6 +170,7 @@ export default {
       };
       console.log(parameters);
       await addPurchaseOrder(parameters);
+      this.refreshPOs();
     },
     // Callback function for alert close button
     // Removes that specific alert object from alerts array
