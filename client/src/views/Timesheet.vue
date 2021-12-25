@@ -154,10 +154,9 @@
 </template>
 
 <style scoped>
-/* Padding causes the column divs containing inputs to overflow. This will address it. */
-.col-input {
-  padding-left: 0;
-  padding-right: 0;
+/* Fixes input sizing issues with Bootstrap */
+input, select {
+  width: 100%;
 }
 /* LEM Rows styling */
 .lemRow {
