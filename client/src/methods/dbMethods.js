@@ -58,4 +58,21 @@ async function addPurchaseOrder(parameters) {
   }
 }
 
-export default { getCompanies, getPurchaseOrders, getLemItems, addCompany, addPurchaseOrder }
+async function addLemRow(parameters) {
+  try {
+    return await axios.post('/api/lemRows', parameters);    
+  } catch (err) {
+    console.log(err);
+  }
+}
+async function addLem(parameters) {
+  try {    
+    return await axios.post('/api/lems', parameters);    
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+
+export default { getCompanies, getPurchaseOrders, getLemItems, addCompany, addPurchaseOrder, addLemRow, addLem }

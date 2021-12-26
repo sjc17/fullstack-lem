@@ -7,7 +7,7 @@ purchaseOrdersRouter
   .get('/', async function (req, res, next) {
     const { purchaseOrderId, companyId } = req.query;
     const text =
-      'SELECT C.Name As "Company Name", PO.Name As "PO Name", PO.Number As "PO Number", PO.Value As "Value" \
+      'SELECT PO.id As "PO ID", C.Name As "Company Name", PO.Name As "PO Name", PO.Number As "PO Number", PO.Value As "Value" \
      FROM PurchaseOrders As PO INNER JOIN Companies As C ON PO.CompanyId=C.id \
      WHERE PO.CompanyId=COALESCE($1, PO.CompanyId) AND PO.id=COALESCE($2, PO.id)';
     makeQuery(text, [companyId, purchaseOrderId], res, next);

@@ -41,6 +41,7 @@
           type="text"
           name="workdate"
           id="form-workdate"
+          v-model="this.workDate"
         />
       </div>
     </div>
@@ -53,6 +54,7 @@
           type="text"
           name="location"
           id="form-location"
+          v-model="this.location"
         />
       </div>
     </div>
@@ -65,6 +67,7 @@
           type="text"
           name="comments"
           id="form-comments"
+          v-model="this.comments"
         />
       </div>
     </div>
@@ -79,11 +82,22 @@
       <div class="col"></div>
     </div>
     <div v-for="row in lemRows" :key="row.localId" class="lemRow row my-1 py-1">
+      <!-- Work Order -->
       <div class="col col-input">
         <input type="text" name="" id="" v-model="row.workOrder" />
       </div>
+      <!-- Item Code (Dropdown) -->
       <div class="col">
-        <select name="" v-model="row.itemCode">
+        <select
+          name=""
+          v-model="row.itemCode"
+          @change="
+            updateRow({
+              rowId: row.localId,
+              newItemCode: row.itemCode,
+            })
+          "
+        >
           <option
             v-for="item in lemItems"
             :key="item.itemcode"
@@ -93,69 +107,79 @@
           </option>
         </select>
       </div>
+      <!-- Description -->
       <div class="col">
-        <!-- If item code is selected, lookup description of work item. Otherwise, use blank. -->
-        {{
-          !row.itemCode
-            ? ''
-            : this.lemItems.find((element) => element.itemcode == row.itemCode)
-                .description
-        }}
+        {{ row.description }}
       </div>
+      <!-- Quantity -->
       <div class="col col-input">
         <input type="number" name="" id="" v-model="row.quantity" step="0.5" />
       </div>
+      <!-- Rate -->
       <div class="col">
-        <!-- If item code is selected, lookup rate. Otherwise, use 0. -->
-        {{
-          !row.itemCode
-            ? 0
-            : this.lemItems.find((element) => element.itemcode == row.itemCode)
-                .rate
-        }}
+        {{ '$' + row.rate.toFixed(2) }}
       </div>
+      <!-- Total (Calculated) -->
       <div class="col">
-        <!-- If item code is selected, calculate total. Otherwise, use 0. -->
-        {{
-          !row.itemCode
-            ? 0
-            : new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: 'USD',
-              }).format(
-                parseFloat(
-                  this.lemItems
-                    .find((element) => element.itemcode == row.itemCode)
-                    .rate.replace('$', '')
-                ) * row.quantity
+        {{ '$' + (row.quantity * row.rate).toFixed(2) }}
+      </div>
+      <!-- Delete Row Button -->
+      <div class="col">
+        <i
+          class="bi bi-trash"
+          @click="
+            deleteRow(
+              this.lemRows.findIndex(
+                (element) => element.localId == row.localId
               )
-        }}
-      </div>
-      <div class="col">
-        <i class="bi bi-trash" @click="deleteRow(row.localId)"></i>
+            )
+          "
+        ></i>
       </div>
     </div>
+    <!-- Bottom row for totals -->
+    <!-- The empty col divs maintain spacing -->
     <div class="lemRow row my-1">
-      <div class="col">Totals:</div>
+      <div class="col">LEM Totals:</div>
       <div class="col"></div>
       <div class="col"></div>
+      <!-- Total Quantity -->
       <div class="col">
         {{ this.lemRows.reduce((sum, row) => sum + row.quantity, 0) }}
       </div>
       <div class="col"></div>
-      <div class="col"></div>
+      <!-- Total Cost -->
       <div class="col">
+        {{
+          '$' + this.lemRows.reduce((sum, row) => sum + row.quantity * row.rate, 0).toFixed(2)
+        }}
       </div>
+      <div class="col"></div>
     </div>
+    <!-- Add Row Button -->
     <div class="d-flex justify-content-center my-3">
       <i class="bi bi-plus-square" @click="addRow"></i>
     </div>
+    <!-- Submit LEM Button -->
+    <div class="d-flex justify-content-center my-3">
+      <button type="button" @click="submitLEM">Submit LEM</button>
+    </div>
+    <!-- Alerts -->
+    <Alert
+          v-for="alert in alerts"
+          :key="alert.id"
+          :message="alert.message"
+          :isSuccess="alert.isSuccess"
+          :isDanger="alert.isDanger"
+          :close="alert.close"
+        />
   </form>
 </template>
 
 <style scoped>
 /* Fixes input sizing issues with Bootstrap */
-input, select {
+input,
+select {
   width: 100%;
 }
 /* LEM Rows styling */
@@ -172,7 +196,7 @@ input, select {
 <script>
 // import Alert from '../components/Alert.vue';
 import defaultMethods from '../methods/dbMethods';
-const { getPurchaseOrders, getCompanies, getLemItems } = defaultMethods;
+const { getPurchaseOrders, getCompanies, getLemItems, addLem, addLemRow } = defaultMethods;
 
 export default {
   name: 'Timesheet',
@@ -198,9 +222,14 @@ export default {
           localId: 0,
           workOrder: '',
           itemCode: null,
+          description: '',
           quantity: 0,
+          rate: 0,
         },
       ],
+      workDate: new Date(),
+      location: '',
+      comments: '',
       lemItems: [],
       counter: 1,
     };
@@ -222,12 +251,56 @@ export default {
         localId: this.counter++,
         workOrder: '',
         itemCode: null,
+        description: '',
         quantity: 0,
+        rate: 0,
       });
     },
-    deleteRow(rowId) {
-      this.lemRows.pop((row) => row.localId == rowId);
+    // Delete row. NOTE: Using index of row in row array, NOT ID
+    deleteRow(rowIndex) {
+      console.log(rowIndex);
+      this.lemRows.splice(rowIndex, 1);
     },
+    // Triggers when user selects a new item code from the dropdown.
+    updateRow(params) {
+      const { rowId, newItemCode } = params;
+      // Get reference to row to be updated
+      const updatedRow = this.lemRows.find((row) => row.localId == rowId);
+      // Get new LEM Item for row
+      const newLemItem = this.lemItems.find(
+        (item) => item.itemcode == newItemCode
+      );
+
+      // Update row's properties
+      updatedRow.itemCode = newItemCode;
+      updatedRow.description = newLemItem.description;
+      // Rate will be saved as a float, not a string with "$"
+      updatedRow.rate = parseFloat(
+        this.lemItems
+          .find((element) => element.itemcode == newItemCode)
+          .rate.replace('$', '')
+      );
+    },
+    async submitLEM() {
+      const newLemId = (await addLem({
+        purchaseOrderId: this.selectedPO["PO ID"],
+        workDate: this.workDate,
+        location: this.location,
+        comments: this.comments
+      })).data[0].id;
+      console.log(newLemId);
+      
+      for (const element of this.lemRows) {
+        console.log(element);
+        const newLEMRow = await addLemRow({
+          LEMid: newLemId,
+          itemCode: element.itemCode,
+          workOrder: element.workOrder,
+          quantity: element.quantity,
+        });
+        console.log(newLEMRow);
+      }
+    }
   },
   async created() {
     // Populate companies dropdown
