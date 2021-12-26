@@ -38,7 +38,7 @@
       <div class="col">
         <input
           class="form-control"
-          type="text"
+          type="date"
           name="workdate"
           id="form-workdate"
           v-model="this.workDate"
@@ -151,7 +151,10 @@
       <!-- Total Cost -->
       <div class="col">
         {{
-          '$' + this.lemRows.reduce((sum, row) => sum + row.quantity * row.rate, 0).toFixed(2)
+          '$' +
+            this.lemRows
+              .reduce((sum, row) => sum + row.quantity * row.rate, 0)
+              .toFixed(2)
         }}
       </div>
       <div class="col"></div>
@@ -166,13 +169,13 @@
     </div>
     <!-- Alerts -->
     <Alert
-          v-for="alert in alerts"
-          :key="alert.id"
-          :message="alert.message"
-          :isSuccess="alert.isSuccess"
-          :isDanger="alert.isDanger"
-          :close="alert.close"
-        />
+      v-for="alert in alerts"
+      :key="alert.id"
+      :message="alert.message"
+      :isSuccess="alert.isSuccess"
+      :isDanger="alert.isDanger"
+      :close="alert.close"
+    />
   </form>
 </template>
 
@@ -194,12 +197,21 @@ select {
 </style>
 
 <script>
-// import Alert from '../components/Alert.vue';
+import Alert from '../components/Alert.vue';
 import defaultMethods from '../methods/dbMethods';
-const { getPurchaseOrders, getCompanies, getLemItems, addLem, addLemRow } = defaultMethods;
+const {
+  getPurchaseOrders,
+  getCompanies,
+  getLemItems,
+  addLem,
+  addLemRow,
+} = defaultMethods;
 
 export default {
   name: 'Timesheet',
+  components: {
+    Alert
+  },
   data() {
     return {
       companies: [],
@@ -215,6 +227,7 @@ export default {
         //   },
         // },
       ],
+      alertCounter: 0,
       selectedPO: {},
       selectedCompany: {},
       lemRows: [
@@ -227,7 +240,7 @@ export default {
           rate: 0,
         },
       ],
-      workDate: new Date(),
+      workDate: null,
       location: '',
       comments: '',
       lemItems: [],
@@ -282,25 +295,79 @@ export default {
       );
     },
     async submitLEM() {
-      const newLemId = (await addLem({
-        purchaseOrderId: this.selectedPO["PO ID"],
-        workDate: this.workDate,
-        location: this.location,
-        comments: this.comments
-      })).data[0].id;
-      console.log(newLemId);
-      
+      // Validate form inputs
+      if (
+        !this.selectedCompany ||
+        !this.selectedPO ||
+        !this.workDate ||
+        this.location.trim() == ''
+      )
+      {
+        this.alerts.push({
+          id: this.alertCounter,
+          message: 'Input validation error. Please check that company, PO, work date, and location are all non-empty values.',
+          isSuccess: false,
+          isDanger: true,
+          close: () => {
+            this.closeCallback(this.alertCounter);
+          },
+        });
+        ++this.alertCounter;
+        return;
+      }
+      // Validate LEM Row items
+      for (const row of this.lemRows) {
+        if (row.workOrder.trim() == '' || row.itemCode.trim() == '') {
+          this.alerts.push({
+            id: this.alertCounter,
+            message: 'Input validation error. Please check that all of the items in the LEM are coded to a work order and item code.',
+            isSuccess: false,
+            isDanger: true,
+            close: () => {
+              this.closeCallback(this.alertCounter);
+            },
+          });
+          ++this.alertCounter;
+          return;
+        }
+      }
+        const newLemId = (
+          await addLem({
+            purchaseOrderId: this.selectedPO['PO ID'],
+            workDate: this.workDate,
+            location: this.location,
+            comments: this.comments,
+          })
+        ).data[0].id;
+
       for (const element of this.lemRows) {
-        console.log(element);
-        const newLEMRow = await addLemRow({
+        addLemRow({
           LEMid: newLemId,
           itemCode: element.itemCode,
           workOrder: element.workOrder,
           quantity: element.quantity,
         });
-        console.log(newLEMRow);
       }
-    }
+
+      this.alerts.push({
+        id: this.alertCounter,
+        message: 'LEM has been submitted!',
+        isSuccess: true,
+        isDanger: false,
+        close: () => {
+          this.closeCallback(this.alertCounter);
+        },
+      });
+      ++this.alertCounter;
+    },
+    // Callback function for alert close button
+    // Removes that specific alert object from alerts array
+    closeCallback(id) {
+      this.alerts.splice(
+        this.alerts.findIndex((alert) => alert.id === id),
+        1
+      );
+    },
   },
   async created() {
     // Populate companies dropdown

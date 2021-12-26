@@ -129,7 +129,8 @@ export default {
         //     this.closeCallback(1);
         //   },
         // },
-      ], // { id: Number, message: String, isSuccess: Boolean, isDanger: Boolean }
+      ],
+      alertCounter: 0,
       selectedCompany: {},
       addPOName: '',
       addPONumber: '',
@@ -148,8 +149,31 @@ export default {
     },
     // Create new company
     async addCompany() {
+      if (!this.newCompanyName) {
+        this.alerts.push({
+          id: this.alertCounter,
+          message: 'Company name must be non-empty.',
+          isSuccess: false,
+          isDanger: true,
+          close: () => {
+            this.closeCallback(this.alertCounter);
+          },
+        });
+        ++this.alertCounter;
+        return;
+      }
       await addCompany(this.newCompanyName);
       await this.refreshCompanies();
+      this.alerts.push({
+        id: this.alertCounter,
+        message: 'Company has been added!',
+        isSuccess: true,
+        isDanger: false,
+        close: () => {
+          this.closeCallback(this.alertCounter);
+        },
+      });
+      ++this.alertCounter;
     },
     // Create new purchase order
     async addPO() {
@@ -160,6 +184,16 @@ export default {
         !this.addPOName ||
         !this.addPOValue
       ) {
+        this.alerts.push({
+          id: this.alertCounter,
+          message: 'Error validating input. Please check that company, PO number, name, and value are all non-empty values.',
+          isSuccess: false,
+          isDanger: true,
+          close: () => {
+            this.closeCallback(this.alertCounter);
+          },
+        });
+        ++this.alertCounter;
         return;
       }
       const parameters = {
@@ -168,9 +202,18 @@ export default {
         value: this.addPOValue,
         companyId: this.selectedCompany.id,
       };
-      console.log(parameters);
       await addPurchaseOrder(parameters);
       this.refreshPOs();
+      this.alerts.push({
+        id: this.alertCounter,
+        message: 'PO has been created!',
+        isSuccess: true,
+        isDanger: false,
+        close: () => {
+          this.closeCallback(this.alertCounter);
+        },
+      });
+      ++this.alertCounter;
     },
     // Callback function for alert close button
     // Removes that specific alert object from alerts array
