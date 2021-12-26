@@ -24,6 +24,20 @@ async function getPurchaseOrders(companyId = null) {
   }
 }
 
+async function getLems(purchaseOrderId = null) {
+  try {
+    const response = await axios.get('/api/lems', {
+      params: {
+        purchaseOrderId
+      }
+    });
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+}
+
 async function getLemItems(itemCode = null) {
   try {
     const response = await axios.get('/api/lemItems', {
@@ -75,4 +89,4 @@ async function addLem(parameters) {
 
 
 
-export default { getCompanies, getPurchaseOrders, getLemItems, addCompany, addPurchaseOrder, addLemRow, addLem }
+export default { getCompanies, getPurchaseOrders, getLems, getLemItems, addCompany, addPurchaseOrder, addLemRow, addLem }

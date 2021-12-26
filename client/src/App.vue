@@ -12,6 +12,7 @@
       <li class="nav-item">
         <router-link to="/purchaseorders" class="nav-link">Purchase Orders</router-link>
         <router-link to="/timesheet" class="nav-link">Timesheet</router-link>
+        <router-link to="/lems" class="nav-link">LEMs</router-link>
       </li>
     </ul>
     <router-view />

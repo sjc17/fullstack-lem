@@ -27,7 +27,7 @@
       <option
         v-for="po in purchaseOrders"
         :key="purchaseOrders.indexOf(po)"
-        :value="{ po }"
+        :value="po"
       >
         {{ po['PO Number'] }}: {{ po['PO Name'] }} - {{ po['Value'] }}
       </option>
@@ -271,7 +271,6 @@ export default {
     },
     // Delete row. NOTE: Using index of row in row array, NOT ID
     deleteRow(rowIndex) {
-      console.log(rowIndex);
       this.lemRows.splice(rowIndex, 1);
     },
     // Triggers when user selects a new item code from the dropdown.
@@ -331,6 +330,8 @@ export default {
           return;
         }
       }
+      // Create new LEM
+      console.log('PO selected: ' + this.selectedPO);
         const newLemId = (
           await addLem({
             purchaseOrderId: this.selectedPO['PO ID'],
@@ -338,8 +339,10 @@ export default {
             location: this.location,
             comments: this.comments,
           })
-        ).data[0].id;
+        ).data[0].id;        
+        console.log('New LEM id: ' + newLemId);
 
+      // Create LEM rows all related to the new LEM
       for (const element of this.lemRows) {
         addLemRow({
           LEMid: newLemId,
@@ -349,6 +352,7 @@ export default {
         });
       }
 
+      // Alert success
       this.alerts.push({
         id: this.alertCounter,
         message: 'LEM has been submitted!',
