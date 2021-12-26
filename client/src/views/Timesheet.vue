@@ -69,7 +69,7 @@
       </div>
     </div>
     <!-- LEM Rows -->
-    <div class="row my-1">
+    <div class="lemRow row my-1">
       <div class="col">Work Order</div>
       <div class="col">Item Code</div>
       <div class="col">Description</div>
@@ -135,7 +135,7 @@
         <i class="bi bi-trash" @click="deleteRow(row.localId)"></i>
       </div>
     </div>
-    <div class="row my-1">
+    <div class="lemRow row my-1">
       <div class="col">Totals:</div>
       <div class="col"></div>
       <div class="col"></div>
@@ -160,8 +160,7 @@ input, select {
 }
 /* LEM Rows styling */
 .lemRow {
-  border-top: solid rgba(175, 175, 175) 1px;
-  border-top: solid rgba(175, 175, 175) 1px;
+  border-bottom: solid rgba(175, 175, 175) 1px;
 }
 /* Show icons as clickable */
 .bi:hover {
